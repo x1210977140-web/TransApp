@@ -1,0 +1,19 @@
+# QuickTrans Python 引擎开发依赖
+# 除了核心依赖外，开发时可能需要的工具
+
+# 测试框架
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+
+# 代码质量
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0
+
+# 开发工具
+ipython>=8.0.0
+ipdb>=0.13.0
+
+# Jupyter（可选，用于实验）
+jupyter>=1.0.0
+notebook>=6.5.0

@@ -1,0 +1,13 @@
+{
+  "name": "transapp",
+  "version": "1.0.0",
+  "description": "> 极简部署 · 纯本地运行 · 高性能识别",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

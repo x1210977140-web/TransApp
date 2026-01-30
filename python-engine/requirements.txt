@@ -1,0 +1,30 @@
+# QuickTrans Python 依赖包
+# 创建时间: 2026-01-30
+# Python 版本: 3.11.6
+# 安装方式: 虚拟环境 (.venv)
+
+# AI 推理引擎
+faster-whisper>=1.0.0
+
+# 深度学习框架
+torch>=2.0.0
+
+# AI 模型库
+transformers>=4.30
+sentencepiece>=0.1.99  # MarianTokenizer 依赖
+
+# Web 框架
+fastapi>=0.100
+uvicorn>=0.22
+
+# 数据验证
+pydantic>=2.0
+
+# 数值计算
+numpy>=1.24
+
+# 繁简转换
+opencc>=1.1
+
+# 音频处理支持
+soundfile>=0.12
