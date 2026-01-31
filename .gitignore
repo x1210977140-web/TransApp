@@ -1,13 +1,59 @@
-/.claude
-/CLEANUP_GUIDE.md
-/DEVELOPMENT_SETUP.md
-/DEVELOPMENT_SETUP.md.temp.md
-/FEATURES.md
-/INSTALLATION_SUMMARY.md
-/README.md
-/TRANSLATION_FEATURE_SUMMARY.md
-/VENV_PATH.md
-/env_check_report.md
-/findings.md
-/progress.md
-/task_plan.md
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist-python/
+.venv/
+venv/
+ENV/
+env/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Electron
+dist/
+dist-electron/
+build/
+*.dmg
+*.zip
+
+# 环境变量
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
+
+# 缓存
+.cache/
+*.cache
+
+# 模型文件和数据库
+*.db
+*.sqlite
+*.pt
+*.pth
+*.bin
+*.onnx
+
+# HuggingFace 缓存
+models/
+hub/
