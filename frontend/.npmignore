@@ -1,0 +1,6 @@
+# 忽略 node_modules（常规）
+node_modules/
+
+# 但要明确包含 Python 可执行文件（覆盖 .gitignore）
+!python-engine/dist/QuickTrans-API*
+!python-engine/dist/QuickTrans-API.exe

@@ -52,9 +52,9 @@
     ],
     "extraResources": [
       {
-        "from": "python-engine/",
+        "from": "python-engine/dist/",
         "to": "python-engine",
-        "filter": ["**/*"]
+        "filter": ["QuickTrans-API*"]
       }
     ],
     "mac": {
