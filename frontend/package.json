@@ -1,7 +1,7 @@
 {
   "name": "quicktrans",
   "private": true,
-  "version": "2.2.1",
+  "version": "2.2.2",
   "author": {
     "name": "QuickTrans Team",
     "email": "contact@quicktrans.app"
@@ -47,9 +47,10 @@
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
-      "python-engine/dist/QuickTrans-API",
-      "python-engine/dist/QuickTrans-API.exe",
       "package.json"
+    ],
+    "asarUnpack": [
+      "python-engine/**"
     ],
     "extraResources": [
       {
