@@ -68,12 +68,41 @@ body {
   font-weight: 500;
 }
 
+.status-badge.status-connecting {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.status-success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.status-error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
 .status-dot {
   width: 8px;
   height: 8px;
   background: #34c759;
   border-radius: 50%;
   animation: pulse 2s infinite;
+}
+
+.status-badge.status-connecting .status-dot {
+  background: #ffc107;
+  animation: pulse 1s infinite;
+}
+
+.status-badge.status-error .status-dot {
+  background: #dc3545;
+  animation: none;
+}
+
+.status-dot.status-pulse {
+  animation: pulse 1s infinite;
 }
 
 @keyframes pulse {
@@ -83,6 +112,23 @@ body {
   50% {
     opacity: 0.5;
   }
+}
+
+.retry-btn {
+  padding: 0.25rem 0.75rem;
+  background: #0071e3;
+  color: white;
+  border: none;
+  border-radius: 980px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.retry-btn:hover {
+  background: #0077ed;
+  transform: scale(1.05);
 }
 
 /* ==================== Navigation ==================== */

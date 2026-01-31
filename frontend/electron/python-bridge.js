@@ -39,38 +39,50 @@ class PythonBridge {
 
       // 检查 Python 可执行文件是否存在
       if (!fs.existsSync(this.pythonPath)) {
-        reject(new Error(`Python 可执行文件不存在: ${this.pythonPath}`))
+        const error = new Error(`Python 可执行文件不存在: ${this.pythonPath}`)
+        console.error('❌', error.message)
+        reject(error)
         return
       }
 
       // 开发环境需要检查脚本文件
       if (process.env.NODE_ENV === 'development' && !fs.existsSync(this.apiScript)) {
-        reject(new Error(`API 脚本不存在: ${this.apiScript}`))
+        const error = new Error(`API 脚本不存在: ${this.apiScript}`)
+        console.error('❌', error.message)
+        reject(error)
         return
       }
 
-      console.log('正在启动 Python API 服务器...')
-      console.log(`环境: ${process.env.NODE_ENV || 'production'}`)
-      console.log(`Python 可执行文件: ${this.pythonPath}`)
+      console.log('🚀 正在启动 Python API 服务器...')
+      console.log(`📍 平台: ${process.platform}`)
+      console.log(`📍 环境: ${process.env.NODE_ENV || 'production'}`)
+      console.log(`📍 Python 可执行文件: ${this.pythonPath}`)
       if (this.apiScript) {
-        console.log(`API 脚本: ${this.apiScript}`)
+        console.log(`📍 API 脚本: ${this.apiScript}`)
       }
 
       // 准备启动参数
       const args = this.apiScript ? [this.apiScript] : []
 
       // 启动 Python 进程
-      this.pythonProcess = spawn(this.pythonPath, args, {
-        env: {
-          ...process.env,
-          PYTHONUNBUFFERED: '1' // 确保 Python 输出不缓冲
-        }
-      })
+      try {
+        this.pythonProcess = spawn(this.pythonPath, args, {
+          env: {
+            ...process.env,
+            PYTHONUNBUFFERED: '1', // 确保 Python 输出不缓冲
+            NODE_ENV: process.env.NODE_ENV || 'production'
+          }
+        })
+      } catch (error) {
+        console.error('❌ 启动 Python 进程失败:', error)
+        reject(error)
+        return
+      }
 
       // 监听标准输出
       this.pythonProcess.stdout.on('data', (data) => {
         const message = data.toString().trim()
-        console.log(`[Python] ${message}`)
+        console.log(`[Python stdout] ${message}`)
 
         // 检测服务器是否启动成功
         if (message.includes('Uvicorn running on') || message.includes('Application startup complete')) {
@@ -83,32 +95,53 @@ class PythonBridge {
       // 监听错误输出
       this.pythonProcess.stderr.on('data', (data) => {
         const message = data.toString().trim()
-        console.error(`[Python Error] ${message}`)
+        // 只在开发环境或错误级别日志时输出 stderr
+        if (!message.includes('INFO:') || process.env.NODE_ENV === 'development') {
+          console.log(`[Python stderr] ${message}`)
+        }
       })
 
       // 监听进程退出
       this.pythonProcess.on('close', (code) => {
-        console.log(`Python 进程退出，代码: ${code}`)
+        const exitMsg = `Python 进程退出，退出码: ${code}`
+        console.log(`⚠️  ${exitMsg}`)
         this.pythonProcess = null
         this.isReady = false
       })
 
       // 监听进程错误
       this.pythonProcess.on('error', (error) => {
-        console.error('Python 进程错误:', error)
+        console.error('❌ Python 进程错误:', error)
         this.pythonProcess = null
         this.isReady = false
         reject(error)
       })
 
-      // 等待服务器启动（首次运行可能需要下载模型，等待更长时间）
-      const waitTime = process.platform === 'win32' ? 30000 : 10000
-      setTimeout(() => {
+      // 等待服务器启动（首次运行可能需要下载模型，Windows 需要更长时间）
+      const waitTime = process.platform === 'win32' ? 45000 : 15000
+      console.log(`⏳ 等待 Python API 服务器启动（最长 ${waitTime/1000} 秒）...`)
+
+      setTimeout(async () => {
         if (!this.isReady) {
-          console.log('⏳ Python API 服务器正在初始化，可能需要更长时间...')
-          // 标记为准备就绪，让实际请求来验证连接
-          this.isReady = true
-          resolve()
+          console.log('⏳ Python API 服务器正在初始化，尝试健康检查...')
+
+          // 尝试健康检查
+          try {
+            const isHealthy = await this.healthCheck()
+            if (isHealthy) {
+              this.isReady = true
+              console.log('✅ Python API 服务器健康检查通过')
+              resolve()
+            } else {
+              console.warn('⚠️  Python API 服务器未就绪，但继续启动应用')
+              this.isReady = true
+              resolve()
+            }
+          } catch (error) {
+            console.warn('⚠️  健康检查失败，但继续启动应用:', error.message)
+            this.isReady = true
+            resolve()
+          }
         }
       }, waitTime)
     })

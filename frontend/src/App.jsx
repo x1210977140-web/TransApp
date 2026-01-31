@@ -7,12 +7,15 @@ function App() {
   const [activeTab, setActiveTab] = useState('translate')
   const [systemStatus, setSystemStatus] = useState(null)
   const [supportedLanguages, setSupportedLanguages] = useState([])
+  const [connectionStatus, setConnectionStatus] = useState('connecting') // connecting, connected, error
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     loadSystemInfo()
   }, [])
 
   const loadSystemInfo = async () => {
+    setConnectionStatus('connecting')
     try {
       const [status, languages] = await Promise.all([
         getSystemStatus(),
@@ -20,8 +23,18 @@ function App() {
       ])
       setSystemStatus(status)
       setSupportedLanguages(languages.languages)
+      setConnectionStatus('connected')
+      setErrorMessage('')
     } catch (error) {
       console.error('Failed to load system info:', error)
+      setConnectionStatus('error')
+      setErrorMessage(error.message || '无法连接到 Python API 服务器')
+
+      // 自动重试逻辑
+      setTimeout(() => {
+        console.log('尝试重新连接...')
+        loadSystemInfo()
+      }, 5000)
     }
   }
 
@@ -30,10 +43,31 @@ function App() {
       <header className="app-header">
         <h1>QuickTrans</h1>
         <p>本地音频转录与文本翻译引擎</p>
-        {systemStatus && (
-          <div className="status-badge">
+
+        {/* 连接状态指示器 */}
+        {connectionStatus === 'connecting' && (
+          <div className="status-badge status-connecting">
+            <span className="status-dot status-pulse"></span>
+            正在连接 Python API...
+          </div>
+        )}
+        {connectionStatus === 'connected' && systemStatus && (
+          <div className="status-badge status-success">
             <span className="status-dot"></span>
             系统正常
+          </div>
+        )}
+        {connectionStatus === 'error' && (
+          <div className="status-badge status-error">
+            <span className="status-dot"></span>
+            {errorMessage}
+            <button
+              className="retry-btn"
+              onClick={loadSystemInfo}
+              style={{ marginLeft: '10px' }}
+            >
+              重试
+            </button>
           </div>
         )}
       </header>
