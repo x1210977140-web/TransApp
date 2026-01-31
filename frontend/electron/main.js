@@ -20,6 +20,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      webSecurity: false, // 允许加载本地资源
       preload: path.join(__dirname, 'preload.js')
     },
     titleBarStyle: 'default',
