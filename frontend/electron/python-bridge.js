@@ -20,7 +20,8 @@ class PythonBridge {
     } else {
       // 生产环境：使用打包后的 Python 可执行文件
       const resourcesPath = process.resourcesPath
-      this.pythonPath = path.join(resourcesPath, 'python-engine/QuickTrans-API')
+      const exeName = process.platform === 'win32' ? 'QuickTrans-API.exe' : 'QuickTrans-API'
+      this.pythonPath = path.join(resourcesPath, 'python-engine', exeName)
       this.apiScript = ''  // 可执行文件不需要脚本路径
     }
   }
@@ -100,13 +101,16 @@ class PythonBridge {
         reject(error)
       })
 
-      // 等待服务器启动（最多 30 秒）
+      // 等待服务器启动（首次运行可能需要下载模型，等待更长时间）
+      const waitTime = process.platform === 'win32' ? 30000 : 10000
       setTimeout(() => {
         if (!this.isReady) {
-          console.log('⏳ Python API 服务器正在初始化...')
-          resolve() // 即使没有检测到启动消息也 resolve，因为可能需要更长时间
+          console.log('⏳ Python API 服务器正在初始化，可能需要更长时间...')
+          // 标记为准备就绪，让实际请求来验证连接
+          this.isReady = true
+          resolve()
         }
-      }, 3000)
+      }, waitTime)
     })
   }
 
@@ -116,7 +120,9 @@ class PythonBridge {
   stop() {
     if (this.pythonProcess) {
       console.log('正在停止 Python API 服务器...')
-      this.pythonProcess.kill('SIGTERM')
+      // Windows 使用 'SIGKILL'，Unix 使用 'SIGTERM'
+      const signal = process.platform === 'win32' ? 'SIGKILL' : 'SIGTERM'
+      this.pythonProcess.kill(signal)
       this.pythonProcess = null
       this.isReady = false
     }
@@ -134,6 +140,20 @@ class PythonBridge {
    */
   getApiUrl() {
     return `http://127.0.0.1:${this.port}`
+  }
+
+  /**
+   * 健康检查 - 验证 API 是否真正可用
+   */
+  async healthCheck() {
+    try {
+      const response = await fetch(`${this.getApiUrl()}/`)
+      const data = await response.json()
+      return data.status === 'ok'
+    } catch (error) {
+      console.error('健康检查失败:', error.message)
+      return false
+    }
   }
 }
 
