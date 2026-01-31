@@ -120,9 +120,10 @@ body {
 .app-main {
   flex: 1;
   padding: 2.5rem 2rem;
-  max-width: 980px;
   width: 100%;
-  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .tab-content {
@@ -130,6 +131,8 @@ body {
   border-radius: 18px;
   padding: 2.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 980px;
 }
 
 /* ==================== Translation ==================== */
@@ -409,8 +412,30 @@ body {
 /* ==================== Responsive ==================== */
 
 @media (max-width: 768px) {
+  .app-header {
+    padding: 2rem 1.5rem 1.5rem;
+  }
+
+  .app-header h1 {
+    font-size: 2rem;
+  }
+
+  .app-header p {
+    font-size: 1rem;
+  }
+
+  .app-main {
+    padding: 1.5rem 1rem;
+  }
+
+  .tab-content {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+
   .text-areas {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .result-text-section {
@@ -419,10 +444,48 @@ body {
 
   .app-nav {
     flex-wrap: wrap;
+    padding: 1rem 1rem;
   }
 
   .app-nav button {
     flex: 1;
     min-width: 100px;
+    font-size: 0.8125rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .language-selector {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .language-selector select {
+    width: 100%;
+  }
+
+  .arrow {
+    transform: rotate(90deg);
+  }
+
+  .action-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .tab-content {
+    padding: 1rem;
+  }
+
+  .result-area {
+    padding: 1.5rem;
+  }
+
+  .result-info {
+    grid-template-columns: 1fr;
   }
 }
