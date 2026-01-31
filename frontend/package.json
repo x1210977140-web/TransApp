@@ -1,7 +1,7 @@
 {
   "name": "quicktrans",
   "private": true,
-  "version": "2.2.0",
+  "version": "2.2.1",
   "author": {
     "name": "QuickTrans Team",
     "email": "contact@quicktrans.app"
@@ -47,14 +47,15 @@
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
-      "python-engine/**/*",
+      "python-engine/dist/QuickTrans-API",
+      "python-engine/dist/QuickTrans-API.exe",
       "package.json"
     ],
     "extraResources": [
       {
         "from": "python-engine/dist/",
         "to": "python-engine",
-        "filter": ["QuickTrans-API*"]
+        "filter": "**/*"
       }
     ],
     "mac": {

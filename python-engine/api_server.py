@@ -8,7 +8,7 @@ import sys
 import os
 import time
 from pathlib import Path
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -31,7 +31,22 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],  # 允许所有 HTTP 方法
     allow_headers=["*"],  # 允许所有请求头
+    expose_headers=["*"],  # 暴露所有响应头
 )
+
+
+# ==================== 请求日志中间件 ====================
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    """记录所有请求"""
+    print(f"[HTTP] {request.method} {request.url.path}")
+    print(f"[HTTP] Headers: {dict(request.headers)}")
+    if request.method in ["POST", "PUT", "PATCH"]:
+        print(f"[HTTP] Body: {request.url.path}")
+    response = await call_next(request)
+    print(f"[HTTP] Response status: {response.status_code}")
+    return response
 
 # 全局模型实例（懒加载）
 whisper_model = None

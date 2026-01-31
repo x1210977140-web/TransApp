@@ -12,6 +12,22 @@ const api = axios.create({
   }
 })
 
+// 请求拦截器 - 记录所有请求
+api.interceptors.request.use(
+  config => {
+    console.log('=== API 请求 ===')
+    console.log('URL:', config.baseURL + config.url)
+    console.log('Method:', config.method)
+    console.log('Headers:', config.headers)
+    console.log('Data:', config.data)
+    return config
+  },
+  error => {
+    console.error('请求配置错误:', error)
+    return Promise.reject(error)
+  }
+)
+
 // 请求拦截器 - 添加重试逻辑
 api.interceptors.response.use(
   response => response,
