@@ -57,3 +57,19 @@ Thumbs.db
 # HuggingFace 缓存
 models/
 hub/
+
+# PyInstaller 打包输出
+python-engine/dist/
+python-engine/build/
+*.spec
+
+# 前端打包的 Python 可执行文件（这些会通过 electron-builder 打包）
+frontend/python-engine/
+
+# 临时文档
+CLEANUP_GUIDE.md
+env_check_report.md
+findings.md
+progress.md
+task_plan.md
+DEVELOPMENT_SETUP.md.temp.md

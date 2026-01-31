@@ -1,0 +1,119 @@
+name: Build QuickTrans
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Python dependencies (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          cd python-engine
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Python dependencies (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cd python-engine
+          python -m venv .venv
+          .venv\Scripts\activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Package Python with PyInstaller (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          cd python-engine
+          source .venv/bin/activate
+          pip install pyinstaller
+          pyinstaller --name=QuickTrans-API --onefile --console api_server.py
+
+      - name: Package Python with PyInstaller (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cd python-engine
+          .venv\Scripts\activate
+          pip install pyinstaller
+          pyinstaller --name=QuickTrans-API --onefile --console api_server.py
+
+      - name: Create python-engine directory for Electron (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p frontend/python-engine
+          cp python-engine/dist/QuickTrans-API frontend/python-engine/
+
+      - name: Create python-engine directory for Electron (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path frontend/python-engine
+          Copy-Item python-engine/dist/QuickTrans-API.exe frontend/python-engine/
+
+      - name: Install Node dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Build Electron app (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd frontend
+          npm run electron:build -- --win
+
+      - name: Build Electron app (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          cd frontend
+          npm run electron:build -- --mac
+
+      - name: Build Electron app (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cd frontend
+          npm run electron:build -- --linux
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuickTrans-${{ matrix.os }}
+          path: |
+            frontend/dist/*.exe
+            frontend/dist/*.dmg
+            frontend/dist/*.zip
+            frontend/dist/*.AppImage
+            frontend/dist/*.deb

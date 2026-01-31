@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import { getSystemStatus, getSupportedLanguages, translateText, transcribeAudio, transcribeAndTranslate } from './api'
+import FileDropZone from './FileDropZone'
 
 function App() {
   const [activeTab, setActiveTab] = useState('translate')
@@ -191,15 +192,10 @@ function TranscriptionTab() {
   return (
     <div className="tab-content">
       <div className="transcription-container">
-        <div className="file-input-area">
-          <input
-            type="text"
-            placeholder="输入音频文件路径（如：/path/to/audio.mp3）"
-            value={audioPath}
-            onChange={(e) => setAudioPath(e.target.value)}
-          />
-          <p className="hint">支持格式：MP3, WAV, M4A, FLAC, OGG</p>
-        </div>
+        <FileDropZone
+          onFileSelect={setAudioPath}
+          placeholder="拖拽音频文件到此处或点击选择"
+        />
 
         <button
           className="action-btn"
@@ -254,25 +250,22 @@ function CombinedTab({ languages }) {
   return (
     <div className="tab-content">
       <div className="combined-container">
-        <div className="file-input-area">
-          <input
-            type="text"
-            placeholder="输入音频文件路径（如：/path/to/audio.mp3）"
-            value={audioPath}
-            onChange={(e) => setAudioPath(e.target.value)}
-          />
-          <select
-            value={targetLang}
-            onChange={(e) => setTargetLang(e.target.value)}
-            className="lang-select"
-          >
-            {languages.map(lang => (
-              <option key={lang.code} value={lang.code}>
-                翻译成{lang.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <FileDropZone
+          onFileSelect={setAudioPath}
+          placeholder="拖拽音频文件到此处或点击选择"
+        />
+
+        <select
+          value={targetLang}
+          onChange={(e) => setTargetLang(e.target.value)}
+          className="lang-select"
+        >
+          {languages.map(lang => (
+            <option key={lang.code} value={lang.code}>
+              翻译成{lang.name}
+            </option>
+          ))}
+        </select>
 
         <button
           className="action-btn"

@@ -2,11 +2,13 @@ import { app, BrowserWindow } from 'electron'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'fs'
+import PythonBridge from './python-bridge.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 let mainWindow = null
+let pythonBridge = null
 
 // 创建主窗口
 function createWindow() {
@@ -41,8 +43,22 @@ function createWindow() {
   })
 }
 
-// 应用就绪时创建窗口
-app.whenReady().then(() => {
+// 应用就绪时创建窗口并启动 Python
+app.whenReady().then(async () => {
+  // 创建 Python 桥接器
+  pythonBridge = new PythonBridge()
+
+  try {
+    // 启动 Python API 服务器
+    console.log('正在启动 Python API 服务器...')
+    await pythonBridge.start()
+    console.log('✅ Python API 服务器已就绪')
+  } catch (error) {
+    console.error('❌ Python API 服务器启动失败:', error)
+    // 即使 Python 启动失败也继续启动应用
+  }
+
+  // 创建窗口
   createWindow()
 
   app.on('activate', () => {
@@ -54,8 +70,20 @@ app.whenReady().then(() => {
 
 // 所有窗口关闭时退出应用（macOS 除外）
 app.on('window-all-closed', () => {
+  // 停止 Python 进程
+  if (pythonBridge) {
+    pythonBridge.stop()
+  }
+
   if (process.platform !== 'darwin') {
     app.quit()
+  }
+})
+
+// 应用退出前清理
+app.on('before-quit', () => {
+  if (pythonBridge) {
+    pythonBridge.stop()
   }
 })
 
@@ -67,3 +95,4 @@ if (process.env.NODE_ENV === 'development') {
     console.log('Vite 开发服务器将在渲染进程中启动')
   }
 }
+
