@@ -257,20 +257,27 @@ def translate_text(request: TranslationRequest):
     - 首次使用某个语言对时会自动下载模型（约 300 MB）
     - 模型会缓存在本地，后续使用无需联网
     """
+    # 记录请求详情
+    print(f"[DEBUG] 收到翻译请求: source={request.source_lang}, target={request.target_lang}, text={request.text[:50]}...")
+
     # 验证语言代码
     if not validate_language(request.source_lang):
+        print(f"[ERROR] 不支持的源语言: {request.source_lang}")
         raise HTTPException(status_code=400, detail=f"不支持的源语言: {request.source_lang}")
 
     if not validate_language(request.target_lang):
+        print(f"[ERROR] 不支持的目标语言: {request.target_lang}")
         raise HTTPException(status_code=400, detail=f"不支持的目标语言: {request.target_lang}")
 
     try:
         # 执行翻译
+        print(f"[DEBUG] 开始翻译...")
         result = translation_manager.translate(
             request.text,
             request.source_lang,
             request.target_lang
         )
+        print(f"[DEBUG] 翻译成功: {result[:50]}...")
 
         return TranslationResponse(
             original_text=request.text,
@@ -280,8 +287,12 @@ def translate_text(request: TranslationRequest):
         )
 
     except ValueError as e:
+        print(f"[ERROR] 翻译值错误: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        print(f"[ERROR] 翻译失败: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"翻译失败: {str(e)}")
 
 

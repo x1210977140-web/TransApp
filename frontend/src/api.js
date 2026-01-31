@@ -18,6 +18,15 @@ api.interceptors.response.use(
   async error => {
     const originalRequest = error.config
 
+    // 详细错误日志
+    console.error('=== API 请求错误 ===')
+    console.error('请求 URL:', originalRequest?.url)
+    console.error('请求数据:', originalRequest?.data)
+    console.error('响应状态:', error.response?.status)
+    console.error('响应数据:', error.response?.data)
+    console.error('错误消息:', error.message)
+    console.error('完整错误:', error)
+
     // 如果是网络错误或连接被拒绝，尝试重试
     if (!error.response && !originalRequest._retry) {
       originalRequest._retry = true
@@ -39,6 +48,27 @@ api.interceptors.response.use(
           }
         }
       }
+    }
+
+    // 处理 HTTP 错误状态码
+    if (error.response) {
+      const status = error.response.status
+      const data = error.response.data
+
+      let errorMessage = `请求失败 (${status})`
+
+      if (status === 403) {
+        errorMessage = '权限错误：API 请求被拒绝。可能是 Python API 服务器配置问题。'
+        console.error('403 错误详情:', data)
+      } else if (status === 404) {
+        errorMessage = 'API 端点不存在'
+      } else if (status === 500) {
+        errorMessage = data?.detail || '服务器内部错误'
+      } else if (data?.detail) {
+        errorMessage = data.detail
+      }
+
+      throw new Error(errorMessage)
     }
 
     // 其他错误直接抛出
