@@ -36,7 +36,7 @@ jobs:
           cd python-engine
           python -m venv .venv
           source .venv/bin/activate
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Install Python dependencies (Windows)
@@ -46,7 +46,7 @@ jobs:
           cd python-engine
           python -m venv .venv
           .venv\Scripts\activate
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Package Python with PyInstaller (Unix)
