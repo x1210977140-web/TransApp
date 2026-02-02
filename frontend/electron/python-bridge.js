@@ -13,16 +13,23 @@ class PythonBridge {
     this.port = 5000
 
     // 确定路径
-    if (process.env.NODE_ENV === 'development') {
+    // 优先检查打包后的可执行文件是否存在，如果存在则使用生产环境路径
+    const resourcesPath = process.resourcesPath
+    const exeName = process.platform === 'win32' ? 'QuickTrans-API.exe' : 'QuickTrans-API'
+    const packagedPythonPath = path.join(resourcesPath, 'python-engine', exeName)
+
+    if (process.env.NODE_ENV === 'development' && !fs.existsSync(packagedPythonPath)) {
       // 开发环境：使用项目中的虚拟环境
       this.pythonPath = path.join(__dirname, '../../python-engine/.venv/bin/python')
       this.apiScript = path.join(__dirname, '../../python-engine/api_server.py')
+      console.log('[Python Bridge] 开发环境，使用虚拟环境 Python')
+      console.log('[Python Bridge] Python 路径:', this.pythonPath)
     } else {
       // 生产环境：使用打包后的 Python 可执行文件
-      const resourcesPath = process.resourcesPath
-      const exeName = process.platform === 'win32' ? 'QuickTrans-API.exe' : 'QuickTrans-API'
-      this.pythonPath = path.join(resourcesPath, 'python-engine', exeName)
+      this.pythonPath = packagedPythonPath
       this.apiScript = ''  // 可执行文件不需要脚本路径
+      console.log('[Python Bridge] 生产环境，使用打包的 Python 可执行文件')
+      console.log('[Python Bridge] Python 路径:', this.pythonPath)
     }
   }
 
